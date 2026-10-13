@@ -1,0 +1,41 @@
+{
+  "name": "PaymentRetries",
+  "description": "Платёж с повторными попытками. Пример с integer-переменной, deadlock и недостижимым состоянием.",
+  "requirements": [
+    {"id": "R1", "text": "Новый платёж отправляется на обработку."},
+    {"id": "R2", "text": "Обработка завершается успешно или неуспешно."},
+    {"id": "R3", "text": "Неуспешный платёж можно повторить, всего не более трёх попыток."},
+    {"id": "R4", "text": "После превышения трёх попыток платёж отклоняется."}
+  ],
+  "variables": [
+    {"name": "status", "type": "enum", "values": ["New", "Processing", "Failed", "Paid", "Rejected"],
+     "description": "Статус платежа"},
+    {"name": "attempts", "type": "integer", "min": 0, "max": 3, "description": "Число попыток обработки", "source": ["R3"]}
+  ],
+  "initial": {"status": "New", "attempts": 0},
+  "transitions": [
+    {"name": "Submit", "description": "Платёж отправлен на обработку", "source": ["R1"],
+     "guard": {"eq": [{"var": "status"}, "New"]},
+     "effects": [{"set": ["status", "Processing"]}, {"set": ["attempts", {"add": [{"var": "attempts"}, 1]}]}]},
+    {"name": "Succeed", "description": "Обработка прошла успешно", "source": ["R2"],
+     "guard": {"eq": [{"var": "status"}, "Processing"]},
+     "effects": [{"set": ["status", "Paid"]}]},
+    {"name": "Fail", "description": "Обработка завершилась ошибкой", "source": ["R2"],
+     "guard": {"eq": [{"var": "status"}, "Processing"]},
+     "effects": [{"set": ["status", "Failed"]}]},
+    {"name": "Retry", "description": "Повторная попытка оплаты", "source": ["R3"],
+     "guard": {"and": [{"eq": [{"var": "status"}, "Failed"]}, {"lt": [{"var": "attempts"}, 3]}]},
+     "effects": [{"set": ["status", "Processing"]}, {"set": ["attempts", {"add": [{"var": "attempts"}, 1]}]}]},
+    {"name": "Reject", "description": "Платёж отклонён после превышения числа попыток", "source": ["R4"],
+     "guard": {"and": [{"eq": [{"var": "status"}, "Failed"]}, {"gt": [{"var": "attempts"}, 3]}]},
+     "effects": [{"set": ["status", "Rejected"]}]}
+  ],
+  "properties": [
+    {"id": "P1", "type": "reachable", "description": "Платёж может быть отклонён",
+     "expression": {"eq": [{"var": "status"}, "Rejected"]}, "source": ["R4"]},
+    {"id": "P2", "type": "deadlock_free", "description": "Платёж не зависает вне финальных статусов",
+     "terminal": {"in": [{"var": "status"}, ["Paid", "Rejected"]]}, "source": ["R3", "R4"]},
+    {"id": "P3", "type": "invariant", "description": "Оплаченный платёж прошёл хотя бы одну попытку",
+     "expression": {"implies": [{"eq": [{"var": "status"}, "Paid"]}, {"ge": [{"var": "attempts"}, 1]}]}, "source": ["R2"]}
+  ]
+}

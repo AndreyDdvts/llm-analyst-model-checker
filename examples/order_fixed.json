@@ -1,0 +1,238 @@
+{
+  "name": "OrderLifecycle",
+  "description": "Жизненный цикл заявки: исправленная модель — Cancel сбрасывает признак approved.",
+  "requirements": [
+    {
+      "id": "R1",
+      "text": "Заявка после согласования может быть исполнена."
+    },
+    {
+      "id": "R2",
+      "text": "Пользователь может отменить заявку до исполнения."
+    },
+    {
+      "id": "R3",
+      "text": "Отменённая заявка не должна быть исполнена."
+    }
+  ],
+  "variables": [
+    {
+      "name": "status",
+      "type": "enum",
+      "values": [
+        "Created",
+        "Approved",
+        "Cancelled",
+        "Executed"
+      ],
+      "description": "Текущий статус заявки",
+      "source": [
+        "R1",
+        "R2"
+      ]
+    },
+    {
+      "name": "approved",
+      "type": "boolean",
+      "description": "Признак согласования",
+      "source": [
+        "R1"
+      ]
+    },
+    {
+      "name": "cancelled",
+      "type": "boolean",
+      "description": "Признак отмены",
+      "source": [
+        "R2"
+      ]
+    }
+  ],
+  "initial": {
+    "status": "Created",
+    "approved": false,
+    "cancelled": false
+  },
+  "transitions": [
+    {
+      "name": "Approve",
+      "description": "Заявка согласована",
+      "guard": {
+        "eq": [
+          {
+            "var": "status"
+          },
+          "Created"
+        ]
+      },
+      "effects": [
+        {
+          "set": [
+            "status",
+            "Approved"
+          ]
+        },
+        {
+          "set": [
+            "approved",
+            true
+          ]
+        }
+      ],
+      "source": [
+        "R1"
+      ]
+    },
+    {
+      "name": "Cancel",
+      "description": "Пользователь отменяет заявку",
+      "guard": {
+        "in": [
+          {
+            "var": "status"
+          },
+          [
+            "Created",
+            "Approved"
+          ]
+        ]
+      },
+      "effects": [
+        {
+          "set": [
+            "status",
+            "Cancelled"
+          ]
+        },
+        {
+          "set": [
+            "cancelled",
+            true
+          ]
+        },
+        {
+          "set": [
+            "approved",
+            false
+          ]
+        }
+      ],
+      "source": [
+        "R2"
+      ]
+    },
+    {
+      "name": "Execute",
+      "description": "Система исполняет заявку",
+      "guard": {
+        "eq": [
+          {
+            "var": "approved"
+          },
+          true
+        ]
+      },
+      "effects": [
+        {
+          "set": [
+            "status",
+            "Executed"
+          ]
+        }
+      ],
+      "source": [
+        "R1"
+      ]
+    }
+  ],
+  "properties": [
+    {
+      "id": "P1",
+      "type": "forbidden_state",
+      "description": "Отменённая заявка не должна быть исполнена",
+      "expression": {
+        "and": [
+          {
+            "eq": [
+              {
+                "var": "status"
+              },
+              "Executed"
+            ]
+          },
+          {
+            "eq": [
+              {
+                "var": "cancelled"
+              },
+              true
+            ]
+          }
+        ]
+      },
+      "source": [
+        "R3"
+      ]
+    },
+    {
+      "id": "P2",
+      "type": "invariant",
+      "description": "Исполнить можно только согласованную заявку",
+      "expression": {
+        "implies": [
+          {
+            "eq": [
+              {
+                "var": "status"
+              },
+              "Executed"
+            ]
+          },
+          {
+            "eq": [
+              {
+                "var": "approved"
+              },
+              true
+            ]
+          }
+        ]
+      },
+      "source": [
+        "R1"
+      ]
+    },
+    {
+      "id": "P3",
+      "type": "reachable",
+      "description": "Заявку вообще можно исполнить",
+      "expression": {
+        "eq": [
+          {
+            "var": "status"
+          },
+          "Executed"
+        ]
+      },
+      "source": [
+        "R1"
+      ]
+    },
+    {
+      "id": "P4",
+      "type": "deadlock_free",
+      "description": "Процесс не застревает вне финальных статусов",
+      "terminal": {
+        "in": [
+          {
+            "var": "status"
+          },
+          [
+            "Cancelled",
+            "Executed"
+          ]
+        ]
+      }
+    }
+  ]
+}
