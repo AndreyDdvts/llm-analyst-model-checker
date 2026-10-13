@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "analyst-agent"
+version = "0.1.0"
+description = "Агент-аналитик: требования → формальная модель → TLA+/TLC → объяснение контрпримера"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["pydantic>=2.5"]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+
+[project.scripts]
+analyst-agent = "analyst_agent.cli:main"
+
+[tool.setuptools]
+packages = ["analyst_agent"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
