@@ -1,0 +1,182 @@
+[
+  {
+    "status": "PROPERTY_VIOLATED",
+    "property_id": "P1",
+    "property_type": "reachable",
+    "engine": "TLC",
+    "statistics": {
+      "states_generated": 10,
+      "distinct_states": 10,
+      "depth": 7
+    },
+    "related_requirements": [
+      {
+        "id": "R4",
+        "text": "После превышения трёх попыток платёж отклоняется."
+      }
+    ],
+    "issues": [],
+    "message": "Целевое состояние недостижимо: ни одна допустимая последовательность переходов в конечной модели к нему не приводит.",
+    "duration_sec": 0.579
+  },
+  {
+    "status": "PROPERTY_VIOLATED",
+    "property_id": "P2",
+    "property_type": "deadlock_free",
+    "engine": "TLC",
+    "statistics": {
+      "states_generated": 13,
+      "distinct_states": 10,
+      "depth": 7
+    },
+    "counterexample": {
+      "steps": [
+        {
+          "number": 0,
+          "state": {
+            "status": "New",
+            "attempts": 0
+          },
+          "changes": {}
+        },
+        {
+          "number": 1,
+          "transition": "Submit",
+          "state": {
+            "status": "Processing",
+            "attempts": 1
+          },
+          "changes": {
+            "status": [
+              "New",
+              "Processing"
+            ],
+            "attempts": [
+              0,
+              1
+            ]
+          }
+        },
+        {
+          "number": 2,
+          "transition": "Fail",
+          "state": {
+            "status": "Failed",
+            "attempts": 1
+          },
+          "changes": {
+            "status": [
+              "Processing",
+              "Failed"
+            ]
+          }
+        },
+        {
+          "number": 3,
+          "transition": "Retry",
+          "state": {
+            "status": "Processing",
+            "attempts": 2
+          },
+          "changes": {
+            "status": [
+              "Failed",
+              "Processing"
+            ],
+            "attempts": [
+              1,
+              2
+            ]
+          }
+        },
+        {
+          "number": 4,
+          "transition": "Fail",
+          "state": {
+            "status": "Failed",
+            "attempts": 2
+          },
+          "changes": {
+            "status": [
+              "Processing",
+              "Failed"
+            ]
+          }
+        },
+        {
+          "number": 5,
+          "transition": "Retry",
+          "state": {
+            "status": "Processing",
+            "attempts": 3
+          },
+          "changes": {
+            "status": [
+              "Failed",
+              "Processing"
+            ],
+            "attempts": [
+              2,
+              3
+            ]
+          }
+        },
+        {
+          "number": 6,
+          "transition": "Fail",
+          "state": {
+            "status": "Failed",
+            "attempts": 3
+          },
+          "changes": {
+            "status": [
+              "Processing",
+              "Failed"
+            ]
+          }
+        }
+      ]
+    },
+    "related_requirements": [
+      {
+        "id": "R3",
+        "text": "Неуспешный платёж можно повторить, всего не более трёх попыток."
+      },
+      {
+        "id": "R4",
+        "text": "После превышения трёх попыток платёж отклоняется."
+      },
+      {
+        "id": "R1",
+        "text": "Новый платёж отправляется на обработку."
+      },
+      {
+        "id": "R2",
+        "text": "Обработка завершается успешно или неуспешно."
+      }
+    ],
+    "issues": [],
+    "message": "Найдено достижимое состояние без разрешённых переходов (deadlock).",
+    "duration_sec": 0.603
+  },
+  {
+    "status": "PROPERTY_HOLDS",
+    "property_id": "P3",
+    "property_type": "invariant",
+    "engine": "TLC",
+    "statistics": {
+      "states_generated": 10,
+      "distinct_states": 10,
+      "depth": 7
+    },
+    "related_requirements": [
+      {
+        "id": "R2",
+        "text": "Обработка завершается успешно или неуспешно."
+      }
+    ],
+    "issues": [],
+    "message": "Свойство не нарушено в исследованной конечной модели при заданных ограничениях. Это не доказательство корректности production-системы.",
+    "duration_sec": 0.601
+  }
+]

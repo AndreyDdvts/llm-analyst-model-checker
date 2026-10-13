@@ -1,0 +1,57 @@
+---- MODULE BehaviorModel ----
+\* Сгенерировано из BehavioralModel "OrderLifecycle". Не редактировать вручную.
+EXTENDS Integers, TLC
+
+VARIABLES status, approved, cancelled
+vars == <<status, approved, cancelled>>
+
+MC_Domain_status == {"Created", "Approved", "Cancelled", "Executed"}
+MC_Domain_approved == BOOLEAN
+MC_Domain_cancelled == BOOLEAN
+MC_TypeOK ==
+    /\ status \in MC_Domain_status
+    /\ approved \in MC_Domain_approved
+    /\ cancelled \in MC_Domain_cancelled
+
+Init ==
+    /\ status = "Created"
+    /\ approved = FALSE
+    /\ cancelled = FALSE
+
+\* [R1] Заявка согласована
+Approve ==
+    /\ (status = "Created")
+    /\ status' = "Approved"
+    /\ approved' = TRUE
+    /\ UNCHANGED <<cancelled>>
+
+\* [R2] Пользователь отменяет заявку
+Cancel ==
+    /\ (status \in {"Created", "Approved"})
+    /\ status' = "Cancelled"
+    /\ cancelled' = TRUE
+    /\ UNCHANGED <<approved>>
+
+\* [R1] Система исполняет заявку
+Execute ==
+    /\ (approved = TRUE)
+    /\ status' = "Executed"
+    /\ UNCHANGED <<approved, cancelled>>
+
+Next ==
+    \/ Approve
+    \/ Cancel
+    \/ Execute
+
+Spec == Init /\ [][Next]_vars
+
+\* P1 (forbidden_state): Отменённая заявка не должна быть исполнена
+MC_Prop == ~((status = "Executed") /\ (cancelled = TRUE))
+
+====
+
+---- cfg ----
+SPECIFICATION Spec
+INVARIANT MC_Prop
+INVARIANT MC_TypeOK
+

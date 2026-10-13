@@ -1,0 +1,198 @@
+[
+  {
+    "status": "PROPERTY_VIOLATED",
+    "property_id": "P1",
+    "property_type": "forbidden_state",
+    "engine": "TLC",
+    "statistics": {
+      "states_generated": 6,
+      "distinct_states": 6,
+      "depth": 4
+    },
+    "counterexample": {
+      "steps": [
+        {
+          "number": 0,
+          "state": {
+            "status": "Created",
+            "approved": false,
+            "cancelled": false
+          },
+          "changes": {}
+        },
+        {
+          "number": 1,
+          "transition": "Approve",
+          "state": {
+            "status": "Approved",
+            "approved": true,
+            "cancelled": false
+          },
+          "changes": {
+            "status": [
+              "Created",
+              "Approved"
+            ],
+            "approved": [
+              false,
+              true
+            ]
+          }
+        },
+        {
+          "number": 2,
+          "transition": "Cancel",
+          "state": {
+            "status": "Cancelled",
+            "approved": true,
+            "cancelled": true
+          },
+          "changes": {
+            "status": [
+              "Approved",
+              "Cancelled"
+            ],
+            "cancelled": [
+              false,
+              true
+            ]
+          }
+        },
+        {
+          "number": 3,
+          "transition": "Execute",
+          "state": {
+            "status": "Executed",
+            "approved": true,
+            "cancelled": true
+          },
+          "changes": {
+            "status": [
+              "Cancelled",
+              "Executed"
+            ]
+          }
+        }
+      ]
+    },
+    "related_requirements": [
+      {
+        "id": "R3",
+        "text": "Отменённая заявка не должна быть исполнена."
+      },
+      {
+        "id": "R1",
+        "text": "Заявка после согласования может быть исполнена."
+      },
+      {
+        "id": "R2",
+        "text": "Пользователь может отменить заявку до исполнения."
+      }
+    ],
+    "issues": [],
+    "message": "Найден путь, нарушающий свойство.",
+    "duration_sec": 0.621
+  },
+  {
+    "status": "PROPERTY_HOLDS",
+    "property_id": "P2",
+    "property_type": "invariant",
+    "engine": "TLC",
+    "statistics": {
+      "states_generated": 8,
+      "distinct_states": 6,
+      "depth": 4
+    },
+    "related_requirements": [
+      {
+        "id": "R1",
+        "text": "Заявка после согласования может быть исполнена."
+      }
+    ],
+    "issues": [],
+    "message": "Свойство не нарушено в исследованной конечной модели при заданных ограничениях. Это не доказательство корректности production-системы.",
+    "duration_sec": 0.625
+  },
+  {
+    "status": "PROPERTY_HOLDS",
+    "property_id": "P3",
+    "property_type": "reachable",
+    "engine": "TLC",
+    "statistics": {
+      "states_generated": 5,
+      "distinct_states": 5,
+      "depth": 3
+    },
+    "witness": {
+      "steps": [
+        {
+          "number": 0,
+          "state": {
+            "status": "Created",
+            "approved": false,
+            "cancelled": false
+          },
+          "changes": {}
+        },
+        {
+          "number": 1,
+          "transition": "Approve",
+          "state": {
+            "status": "Approved",
+            "approved": true,
+            "cancelled": false
+          },
+          "changes": {
+            "status": [
+              "Created",
+              "Approved"
+            ],
+            "approved": [
+              false,
+              true
+            ]
+          }
+        },
+        {
+          "number": 2,
+          "transition": "Execute",
+          "state": {
+            "status": "Executed",
+            "approved": true,
+            "cancelled": false
+          },
+          "changes": {
+            "status": [
+              "Approved",
+              "Executed"
+            ]
+          }
+        }
+      ]
+    },
+    "related_requirements": [
+      {
+        "id": "R1",
+        "text": "Заявка после согласования может быть исполнена."
+      }
+    ],
+    "issues": [],
+    "message": "Целевое состояние достижимо; приведён путь-свидетель.",
+    "duration_sec": 0.613
+  },
+  {
+    "status": "PROPERTY_HOLDS",
+    "property_id": "P4",
+    "property_type": "deadlock_free",
+    "engine": "TLC",
+    "statistics": {
+      "states_generated": 12,
+      "distinct_states": 6,
+      "depth": 4
+    },
+    "related_requirements": [],
+    "issues": [],
+    "message": "Свойство не нарушено в исследованной конечной модели при заданных ограничениях. Это не доказательство корректности production-системы.",
+    "duration_sec": 0.739
+  }
+]
